@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | NeonRecon{% endblock %}
+
+{% block content %}
+<section class="dashboard-wrap">
+    <div class="hero-panel pro-card">
+        <div>
+            <p class="status-pill">LIVE SECURITY WORKSPACE</p>
+            <h1 class="hero-title">Advanced Network Recon Dashboard</h1>
+            <p class="hero-sub">
+                Launch scans, review risk-heavy ports, track saved history, and export results from one clean console.
+            </p>
+        </div>
+        <div class="hero-actions">
+            <a href="{{ url_for('scanner.new_scan') }}" class="btn-primary">Start New Scan</a>
+            <a href="{{ url_for('scanner.history') }}" class="btn-secondary">View History</a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card pro-card">
+            <span>Total Scans</span>
+            <h2>{{ total_scans }}</h2>
+        </div>
+        <div class="stat-card pro-card">
+            <span>Open Ports Found</span>
+            <h2>{{ total_open_ports }}</h2>
+        </div>
+        <div class="stat-card pro-card">
+            <span>Saved Targets</span>
+            <h2>{{ saved_targets }}</h2>
+        </div>
+        <div class="stat-card pro-card danger-card">
+            <span>High Risk Services</span>
+            <h2>{{ high_risk_count }}</h2>
+        </div>
+    </div>
+
+    <div class="panel-grid">
+        <div class="pro-card terminal-card">
+            <div class="card-head">
+                <h3>Recent Operations</h3>
+            </div>
+            <div class="terminal-body">
+                {% for item in recent_scans %}
+                    <p>> {{ item.target }} | {{ item.scan_type }} | {{ item.created_at }}</p>
+                {% else %}
+                    <p>> No recent scans found.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="pro-card">
+            <div class="card-head">
+                <h3>Priority Ports</h3>
+            </div>
+            <div class="chip-row">
+                <span class="chip">21 FTP</span>
+                <span class="chip">22 SSH</span>
+                <span class="chip">25 SMTP</span>
+                <span class="chip">53 DNS</span>
+                <span class="chip">80 HTTP</span>
+                <span class="chip">110 POP3</span>
+                <span class="chip">143 IMAP</span>
+                <span class="chip">443 HTTPS</span>
+                <span class="chip">445 SMB</span>
+                <span class="chip">3306 MYSQL</span>
+                <span class="chip">3389 RDP</span>
+                <span class="chip">8080 HTTP-ALT</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

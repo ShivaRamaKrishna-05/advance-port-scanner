@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}New Scan | NeonRecon{% endblock %}
+
+{% block content %}
+<section class="dashboard-wrap">
+    <div class="scan-header pro-card">
+        <div>
+            <p class="status-pill">RECON MODULE</p>
+            <h1 class="hero-title">Launch Port Scan</h1>
+            <p class="hero-sub">
+                Scan common ports, top ports, full 1-1024 range, or custom ports with named service mapping.
+            </p>
+        </div>
+    </div>
+
+    <div class="scan-layout">
+        <div class="pro-card terminal-card">
+            <form method="POST" action="{{ url_for('scanner.new_scan') }}" class="scan-form" id="scanForm">
+                <div class="input-group">
+                    <label>Target Host / IP</label>
+                    <input type="text" name="target" placeholder="127.0.0.1 or scanme.nmap.org" value="{{ target or '' }}" {% if view_only %}disabled{% endif %} required>
+                </div>
+
+                <div class="input-group">
+                    <label>Custom Ports (optional)</label>
+                    <input type="text" name="ports" placeholder="22,80,443 or 1-1000" value="{{ ports or '' }}" {% if view_only %}disabled{% endif %}>
+                </div>
+
+                <div class="input-group">
+                    <label>Scan Mode</label>
+                    <select name="scan_type" {% if view_only %}disabled{% endif %}>
+                        <option value="quick" {% if scan_type == 'quick' %}selected{% endif %}>Quick Scan</option>
+                        <option value="top" {% if scan_type == 'top' %}selected{% endif %}>Top Ports</option>
+                        <option value="full" {% if scan_type == 'full' %}selected{% endif %}>Full Scan 1-1024</option>
+                    </select>
+                </div>
+
+                <div class="chip-row">
+                    <span class="chip">21 FTP</span>
+                    <span class="chip">22 SSH</span>
+                    <span class="chip">80 HTTP</span>
+                    <span class="chip">443 HTTPS</span>
+                    <span class="chip">445 SMB</span>
+                    <span class="chip">3306 MYSQL</span>
+                    <span class="chip">3389 RDP</span>
+                    <span class="chip">8080 HTTP-ALT</span>
+                </div>
+
+                {% if not view_only %}
+                <button type="submit" class="btn-primary">Start Scan</button>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="pro-card terminal-card">
+            <div class="card-head">
+                <h3>Scan Summary</h3>
+                <span class="dot-live"></span>
+            </div>
+
+            <div class="terminal-body">
+                {% if summary %}
+                    <p>> Scanned target: {{ target }}</p>
+                    <p>> Total ports checked: {{ summary.total_ports }}</p>
+                    <p>> Open ports found: {{ summary.open_ports }}</p>
+                    <p>> High risk services: {{ summary.high_risk }}</p>
+                    <p>> Range: {{ summary.scanned_range }}</p>
+                {% else %}
+                    <p>> Awaiting scan input...</p>
+                    <p>> Choose mode and target to begin.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if submitted %}
+    <div id="resultsSection" class="pro-card results-card">
+        <div class="card-head results-top">
+            <h3>Scan Results</h3>
+            <div class="export-row">
+                {% if request.endpoint == 'scanner.scan_detail' %}
+                <a class="btn-secondary" href="{{ url_for('scanner.export_scan_json', scan_id=scan_info.id if scan_info else 1) }}">Export JSON</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="summary-strip">
+            <div><strong>Target:</strong> {{ target }}</div>
+            <div><strong>Ports:</strong> {{ ports or (summary.scanned_range if summary else 'N/A') }}</div>
+            <div><strong>Mode:</strong> {{ scan_type }}</div>
+        </div>
+
+        <div class="table-wrap">
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>Port</th>
+                        <th>Status</th>
+                        <th>Service</th>
+                        <th>Version</th>
+                        <th>Protocol</th>
+                        <th>Response</th>
+                        <th>Risk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in results %}
+                    <tr>
+                        <td>{{ row.port }}</td>
+                        <td>
+                            <span class="badge {% if row.status == 'OPEN' %}open{% else %}closed{% endif %}">
+                                {{ row.status }}
+                            </span>
+                        </td>
+                        <td>{{ row.service }}</td>
+                        <td>{{ row.version }}</td>
+                        <td>{{ row.protocol }}</td>
+                        <td>{{ row.response_time }}</td>
+                        <td>
+                            <span class="badge {% if row.risk == 'HIGH' %}high{% elif row.risk == 'MEDIUM' %}medium{% else %}low{% endif %}">
+                                {{ row.risk }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</section>
+
+{% if submitted %}
+<script>
+window.addEventListener("load", function () {
+    const el = document.getElementById("resultsSection");
+    if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,40 @@
+<aside class="sidebar">
+  <div class="sidebar-top">
+    <div class="brand">
+      <div class="brand-logo">N</div>
+      <div class="brand-text">
+        <h2>NeonRecon</h2>
+        <p>Advanced Port Scanner</p>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      <a class="nav-item {% if request.path == '/scanner/dashboard' %}active{% endif %}" href="{{ url_for('scanner.dashboard') }}">
+        <span class="nav-dot"></span>
+        <span>Dashboard</span>
+      </a>
+
+      <a class="nav-item {% if request.path == '/scanner/history' %}active{% endif %}" href="{{ url_for('scanner.history') }}">
+        <span class="nav-dot"></span>
+        <span>Scan History</span>
+      </a>
+
+      <a class="nav-item {% if request.path.startswith('/tools') %}active{% endif %}" href="{{ url_for('tools.tools_page') }}">
+        <span class="nav-dot"></span>
+        <span>Tools</span>
+      </a>
+    </nav>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="user-panel">
+      <div class="user-avatar">{{ session.get('username', 'U')[0]|upper }}</div>
+      <div>
+        <p class="user-label">Operator</p>
+        <strong>{{ session.get('username') }}</strong>
+      </div>
+    </div>
+
+    <a class="logout-btn" href="{{ url_for('auth.logout') }}">Logout</a>
+  </div>
+</aside>

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Scan History{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Scan History</h1>
+<p class="page-subtitle">Full history of all stored scans with save, notes, detail view, and delete controls.</p>
+
+<div class="panel">
+    {% if scans %}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Target</th>
+                <th>Range</th>
+                <th>Open Ports</th>
+                <th>Saved</th>
+                <th>Notes</th>
+                <th>Created</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for scan in scans %}
+            <tr>
+                <td>{{ scan['scan_name'] or 'Untitled Scan' }}</td>
+                <td>{{ scan['target'] }}</td>
+                <td>{{ scan['port_range'] }}</td>
+                <td>{{ scan['total_open_ports'] }}</td>
+                <td>
+                    {% if scan['is_favorite'] == 1 %}
+                        <span class="badge favorite">Saved</span>
+                    {% else %}
+                        <span class="badge normal">Normal</span>
+                    {% endif %}
+                </td>
+                <td>{{ scan['notes'][:40] }}{% if scan['notes'] and scan['notes']|length > 40 %}...{% endif %}</td>
+                <td>{{ scan['created_at'] }}</td>
+                <td>
+                    <div class="action-row">
+                        <a href="{{ url_for('scanner.scan_detail', scan_id=scan['id']) }}" class="btn-ghost">View</a>
+
+                        <form class="inline" method="POST" action="{{ url_for('scanner.toggle_favorite', scan_id=scan['id']) }}">
+                            <button type="submit" class="btn-ghost">
+                                {% if scan['is_favorite'] == 1 %}Unsave{% else %}Save{% endif %}
+                            </button>
+                        </form>
+
+                        <form class="inline" method="POST" action="{{ url_for('scanner.delete_scan', scan_id=scan['id']) }}">
+                            <button type="submit" class="btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No scans found yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

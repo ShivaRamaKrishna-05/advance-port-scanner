@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Port Scanner Dashboard</h1>
+<p class="page-subtitle">Professional scan console with scan history, favorites, and live saved results.</p>
+
+<div class="grid-3">
+    <div class="stat-box">
+        <div class="stat-label">Total Scans</div>
+        <div class="stat-value">{{ total_scans }}</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-label">Favorite Scans</div>
+        <div class="stat-value">{{ favorite_scans }}</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-label">Open Ports Found</div>
+        <div class="stat-value">{{ total_open_ports }}</div>
+    </div>
+</div>
+
+<div class="panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+        <div>
+            <h2 style="margin:0 0 8px; color:#00ff9f;">Quick Actions</h2>
+            <div style="color:#9de7cb;">Launch a new scan or manage your stored scan sessions.</div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a href="{{ url_for('scanner.newscan') }}" class="btn-primary">Start New Scan</a>
+            <a href="{{ url_for('scanner.history') }}" class="btn-ghost">Open History</a>
+            <a href="{{ url_for('scanner.saved_scans') }}" class="btn-ghost">View Saved</a>
+        </div>
+    </div>
+</div>
+
+<div class="panel">
+    <h2 style="margin-top:0; color:#00ff9f;">Recent Scans</h2>
+    {% if recent_scans %}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Target</th>
+                <th>Resolved IP</th>
+                <th>Range</th>
+                <th>Open Ports</th>
+                <th>Saved</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for scan in recent_scans %}
+            <tr>
+                <td>{{ scan['scan_name'] or 'Untitled Scan' }}</td>
+                <td>{{ scan['target'] }}</td>
+                <td>{{ scan['resolved_ip'] }}</td>
+                <td>{{ scan['port_range'] }}</td>
+                <td>{{ scan['total_open_ports'] }}</td>
+                <td>
+                    {% if scan['is_favorite'] == 1 %}
+                    <span class="badge favorite">Saved</span>
+                    {% else %}
+                    <span class="badge normal">Normal</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="action-row">
+                        <a href="{{ url_for('scanner.scan_detail', scan_id=scan['id']) }}" class="btn-ghost">View</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No scans available yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

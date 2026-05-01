@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Scan Detail{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Scan Detail</h1>
+<p class="page-subtitle">Detailed stored result view for one scan session.</p>
+
+<div class="panel">
+    <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:16px;">
+        <div><strong style="color:#00ff9f;">Scan Name:</strong> {{ scan['scan_name'] or 'Untitled Scan' }}</div>
+        <div><strong style="color:#00ff9f;">Target:</strong> {{ scan['target'] }}</div>
+        <div><strong style="color:#00ff9f;">Resolved IP:</strong> {{ scan['resolved_ip'] }}</div>
+        <div><strong style="color:#00ff9f;">Port Range:</strong> {{ scan['port_range'] }}</div>
+        <div><strong style="color:#00ff9f;">Open Ports:</strong> {{ scan['total_open_ports'] }}</div>
+        <div><strong style="color:#00ff9f;">Created:</strong> {{ scan['created_at'] }}</div>
+    </div>
+
+    <div style="margin-top:18px;">
+        {% if scan['is_favorite'] == 1 %}
+            <span class="badge favorite">Saved Scan</span>
+        {% else %}
+            <span class="badge normal">Normal Scan</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="panel">
+    <h2 style="margin-top:0; color:#00ff9f;">Scan Notes</h2>
+    <form method="POST" action="{{ url_for('scanner.update_notes', scan_id=scan['id']) }}">
+        <textarea name="notes" placeholder="Add notes...">{{ scan['notes'] or '' }}</textarea>
+        <div style="margin-top:14px;">
+            <button type="submit" class="btn-primary">Save Notes</button>
+        </div>
+    </form>
+</div>
+
+<div class="panel">
+    <h2 style="margin-top:0; color:#00ff9f;">Open Port Results</h2>
+    {% if results %}
+    <table>
+        <thead>
+            <tr>
+                <th>Port</th>
+                <th>Status</th>
+                <th>Service</th>
+                <th>Version</th>
+                <th>Protocol</th>
+                <th>Response Time</th>
+                <th>Risk</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in results %}
+            <tr>
+                <td>{{ row['port'] }}</td>
+                <td>{{ row['status'] }}</td>
+                <td>{{ row['service'] }}</td>
+                <td>{{ row['version'] }}</td>
+                <td>{{ row['protocol'] }}</td>
+                <td>{{ row['response_time'] }}</td>
+                <td>{{ row['risk'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No results stored for this scan.</p>
+    {% endif %}
+</div>
+{% endblock %}
