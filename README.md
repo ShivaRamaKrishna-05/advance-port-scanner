@@ -50,6 +50,19 @@ advance-port-scanner/
 ```
 
 ---
+## 📸 Screenshots
+
+### Login Page
+![Login](static/screenshots/login-page.png)
+
+### Homepage
+![Homepage](static/screenshots/homepage.png)
+
+### Scanning Process
+![Scan](static/screenshots/scanning-process.png)
+
+### Scan Details
+![Details](static/screenshots/scan-details.png)
 
 # Disclaimer
 
