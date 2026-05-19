@@ -499,3 +499,16 @@ def delete_scan(scan_id):
 @scanner_bp.route("/saved_scans")
 def saved_scans():
     return render_template("dashboard/saved_scans.html")
+
+@scanner_bp.route("/scan/<int:scan_id>/update-notes", methods=["POST"])
+def update_notes(scan_id):
+    notes = request.form.get("notes")
+
+    db = get_db()
+    db.execute(
+        "UPDATE scans SET notes = ? WHERE id = ?",
+        (notes, scan_id)
+    )
+    db.commit()
+
+    return redirect(url_for("scanner.scan_detail", scan_id=scan_id))
