@@ -1,8 +1,17 @@
-from app import create_app
-from utils.database import init_db
+import sqlite3
+from pathlib import Path
 
-app = create_app()
+# Create instance folder if not exists
+Path("instance").mkdir(exist_ok=True)
 
-with app.app_context():
-    init_db()
-    print("Database initialized successfully.")
+# Connect DB
+conn = sqlite3.connect("instance/scanner.db")
+
+# Load schema
+with open("schema.sql", "r") as f:
+    conn.executescript(f.read())
+
+conn.commit()
+conn.close()
+
+print("Database initialized successfully.")

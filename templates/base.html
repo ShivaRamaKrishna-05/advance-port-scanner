@@ -9,15 +9,25 @@
         * { box-sizing: border-box; }
 
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background:
-                radial-gradient(circle at top left, rgba(0,255,159,0.12), transparent 25%),
-                radial-gradient(circle at bottom right, rgba(255,59,59,0.08), transparent 22%),
-                linear-gradient(180deg, #020202, #04110c);
-            color: #dcfff1;
-            overflow-x: hidden;
-        }
+    margin: 0;
+    font-family: Arial, sans-serif;
+
+    background:
+        radial-gradient(circle at top left,
+        rgba(0,255,159,0.08),
+        transparent 20%),
+
+        radial-gradient(circle at bottom right,
+        rgba(255,59,59,0.05),
+        transparent 18%),
+
+        linear-gradient(180deg,
+        #010101,
+        #03110b);
+
+    color: #dcfff1;
+    overflow-x: hidden;
+}
 
         .matrix-bg {
             position: fixed;
@@ -421,8 +431,7 @@
                 <a href="{{ url_for('scanner.dashboard') }}">Dashboard</a>
                 <a href="{{ url_for('scanner.newscan') }}">New Scan</a>
                 <a href="{{ url_for('scanner.history') }}">Scan History</a>
-                <a href="{{ url_for('scanner.saved_scans') }}">Saved Scans</a>
-                <a href="{{ url_for('tools.tools_home') }}">Tools</a>
+<a href="#">Saved Scans</a>                <a href="{{ url_for('tools.tools_home') }}">Tools</a>
                 <a href="{{ url_for('auth.logout') }}">Logout</a>
             </div>
 

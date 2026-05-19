@@ -2,13 +2,16 @@ import os
 import sqlite3
 from flask import current_app, g
 
-# ---------- DATABASE SCHEMA ----------
+# =========================================================
+# DATABASE SCHEMA
+# =========================================================
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE,
-    email TEXT UNIQUE,
-    password_hash TEXT
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS scans (
@@ -16,54 +19,98 @@ CREATE TABLE IF NOT EXISTS scans (
     user_id INTEGER,
     scan_name TEXT,
     target TEXT,
-    ports TEXT,
-    open_count INTEGER,
-    closed_count INTEGER,
-    filtered_count INTEGER,
+    resolved_ip TEXT,
+    port_range TEXT,
+    total_open_ports INTEGER,
+    is_favorite INTEGER DEFAULT 0,
     notes TEXT,
-    severity TEXT,
-    risk_score INTEGER,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS scan_results (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+
     scan_id INTEGER,
+
     port INTEGER,
+
     status TEXT,
+
     service TEXT,
+
     version TEXT,
+
     protocol TEXT,
+
     response_time TEXT,
+
     risk TEXT,
+
+    os TEXT,
+
+    vulnerability TEXT,
+
     banner TEXT,
-    suggestion TEXT
+
+    suggestion TEXT,
+
+    FOREIGN KEY(scan_id) REFERENCES scans(id)
 );
 """
 
-# ---------- GET DATABASE ----------
+# =========================================================
+# GET DATABASE CONNECTION
+# =========================================================
+
 def get_db():
-    if 'db' not in g:
-        db_path = current_app.config['DATABASE']
+
+    if "db" not in g:
+
+        db_path = current_app.config["DATABASE"]
+
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
         g.db = sqlite3.connect(db_path)
+
         g.db.row_factory = sqlite3.Row
 
     return g.db
 
-# ---------- CLOSE DATABASE ----------
+
+# =========================================================
+# CLOSE DATABASE
+# =========================================================
+
 def close_db(e=None):
-    db = g.pop('db', None)
+
+    db = g.pop("db", None)
+
     if db is not None:
         db.close()
 
-# ---------- INITIALIZE DATABASE ----------
+
+# =========================================================
+# INITIALIZE DATABASE
+# =========================================================
+
 def init_db():
+
     db = get_db()
+
     db.executescript(SCHEMA)
+
     db.commit()
 
-# ---------- FIXED FUNCTION (THIS WAS MISSING) ----------
+
+# =========================================================
+# REGISTER DATABASE WITH APP
+# =========================================================
+
 def init_app(app):
+
     app.teardown_appcontext(close_db)
+
+    with app.app_context():
+        init_db()

@@ -3,273 +3,499 @@
 {% block title %}New Scan{% endblock %}
 
 {% block content %}
-<h1 class="page-title">Start New Scan</h1>
-<p class="page-subtitle">Launch a professional port scan with live cyber scanning animation.</p>
+
+<h1 class="page-title">⚡ Start New Scan</h1>
+<p class="page-subtitle">
+    Advanced cyber reconnaissance engine with threading, OS detection,
+    geolocation intelligence, hostname resolution and live terminal logs.
+</p>
 
 <div class="panel">
+
     <form id="scanForm">
+
         <div class="form-group">
-            <label for="scan_name">Scan Name</label>
-            <input type="text" id="scan_name" name="scan_name" placeholder="Example: Internal Web Recon">
+            <label>Scan Name</label>
+            <input
+                type="text"
+                id="scan_name"
+                name="scan_name"
+                placeholder="Example: Internal Network Recon"
+            >
         </div>
 
         <div class="form-group">
-            <label for="target">Target IP / Hostname</label>
-            <input type="text" id="target" name="target" placeholder="Example: 127.0.0.1 or scanme.nmap.org" required>
+            <label>Target IP / Hostname</label>
+            <input
+                type="text"
+                id="target"
+                name="target"
+                placeholder="Example: scanme.nmap.org"
+                required
+            >
         </div>
 
         <div class="form-grid">
+
             <div class="form-group">
-                <label for="start_port">Start Port</label>
-                <input type="number" id="start_port" name="start_port" value="1" min="1" max="65535" required>
+                <label>Start Port</label>
+                <input
+                    type="number"
+                    id="start_port"
+                    name="start_port"
+                    value="1"
+                    min="1"
+                    max="65535"
+                    required
+                >
             </div>
 
             <div class="form-group">
-                <label for="end_port">End Port</label>
-                <input type="number" id="end_port" name="end_port" value="1024" min="1" max="65535" required>
+                <label>End Port</label>
+                <input
+                    type="number"
+                    id="end_port"
+                    name="end_port"
+                    value="1024"
+                    min="1"
+                    max="65535"
+                    required
+                >
             </div>
+            <div class="form-group">
+    <label for="threads">Threads</label>
+    <input type="number"
+           id="threads"
+           name="threads"
+           value="100"
+           min="1"
+           max="500">
+</div>
 
             <div class="form-group">
-                <label>Quick Preset</label>
-                <select id="presetSelect">
-                    <option value="">Select preset</option>
-                    <option value="1-100">Top 100</option>
-                    <option value="1-1024">Top 1024</option>
-                    <option value="1-65535">Full Range</option>
-                    <option value="20-1024">Web + Infra</option>
-                    <option value="3306-3389">DB / RDP Block</option>
-                </select>
+                <label>Threads</label>
+                <input
+                    type="number"
+                    id="threads"
+                    name="threads"
+                    value="200"
+                    min="10"
+                    max="1000"
+                >
             </div>
+
         </div>
 
         <div class="form-group">
-            <label for="notes">Notes</label>
-            <textarea id="notes" name="notes" placeholder="Add notes about this target or scan purpose..."></textarea>
+            <label>Quick Preset</label>
+
+            <select id="presetSelect">
+
+                <option value="">Select preset</option>
+                <option value="1-100">Top 100</option>
+                <option value="1-1024">Top 1024</option>
+                <option value="1-65535">Full Range</option>
+                <option value="20-1024">Web + Infra</option>
+                <option value="3306-3389">DB + RDP</option>
+
+            </select>
         </div>
 
-        <div style="display:flex; gap:12px; flex-wrap:wrap;">
-            <button type="submit" id="scanBtn" class="btn-primary">Start Scan</button>
-            <a href="{{ url_for('scanner.history') }}" class="btn-ghost">Go to History</a>
+        <div class="form-group">
+            <label>Notes</label>
+
+            <textarea
+                id="notes"
+                name="notes"
+                placeholder="Write scan notes..."
+            ></textarea>
         </div>
+
+        <div class="btn-row">
+
+            <button
+                type="submit"
+                id="scanBtn"
+                class="btn-primary"
+            >
+                Start Scan
+            </button>
+
+            <a
+                href="{{ url_for('scanner.history') }}"
+                class="btn-ghost"
+            >
+                Scan History
+            </a>
+
+        </div>
+
     </form>
+
 </div>
 
+<!-- LIVE ENGINE -->
 <div id="scanAnimation" class="scan-animation hidden">
+
     <div class="scan-top">
+
         <div>
-            <h2>⚡ Live Scan Engine</h2>
-            <p>Real-time scanning simulation with backend scan execution.</p>
+            <h2>⚡ Cyber Scan Engine</h2>
+            <p>Real-time threaded port scanning system.</p>
         </div>
+
         <div class="scan-status">
             <span class="pulse-dot"></span>
             <span id="engineStatus">Idle</span>
         </div>
+
     </div>
 
     <div class="target-box">
+
         <div>
             <span>Target</span>
             <strong id="liveTarget">-</strong>
         </div>
+
         <div>
-            <span>Range</span>
+            <span>Port Range</span>
             <strong id="liveRange">-</strong>
         </div>
+
         <div>
-            <span>Mode</span>
-            <strong>TCP Connect</strong>
+            <span>Threads</span>
+            <strong id="liveThreads">-</strong>
         </div>
+
     </div>
 
     <div class="progress-wrap">
+
         <div class="progress-label">
-            <span>Scanning Progress</span>
+            <span>Scan Progress</span>
             <span id="progressText">0%</span>
         </div>
+
         <div class="scan-bar">
             <div id="scanProgress"></div>
         </div>
+
     </div>
 
     <div class="terminal-box">
+
         <div class="terminal-header">
+
             <span class="dot red"></span>
             <span class="dot yellow"></span>
             <span class="dot green"></span>
-            <span class="terminal-title">scanner-console</span>
+
+            <span class="terminal-title">
+                cybernex-scanner
+            </span>
+
         </div>
+
         <div id="scanLogs" class="scan-logs"></div>
+
     </div>
+
 </div>
 
+<!-- RESULTS -->
 <div class="panel">
-    <h2 style="margin-top:0; color:#00ff9f;">Latest Scan Results</h2>
-    <div id="statusBox" style="margin-bottom:16px;"></div>
-    <div id="resultsContainer">No scan started yet.</div>
+
+    <h2 class="results-title">
+        Latest Scan Results
+    </h2>
+
+    <div id="statusBox"></div>
+
+    <div id="resultsContainer">
+        No scan started yet.
+    </div>
+
 </div>
 
 <style>
-.scan-animation {
-    margin-bottom: 22px;
-    padding: 22px;
-    border-radius: 20px;
-    border: 1px solid rgba(0, 255, 159, 0.25);
-    background:
-        linear-gradient(135deg, rgba(0,255,159,0.06), rgba(0,0,0,0.94)),
-        radial-gradient(circle at top right, rgba(255,59,59,0.12), transparent 35%);
-    box-shadow: 0 0 30px rgba(0,255,159,0.08);
-}
 
 .hidden {
     display: none;
 }
 
+.results-title {
+    color: #00ff9f;
+    margin-top: 0;
+}
+
+.btn-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.scan-animation {
+
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+    padding: 22px;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0,255,159,0.05),
+            rgba(0,0,0,0.95)
+        );
+
+    border: 1px solid rgba(0,255,159,0.25);
+
+    box-shadow:
+        0 0 20px rgba(0,255,159,0.12);
+
+}
+
 .scan-top {
+
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 18px;
-    margin-bottom: 18px;
+
+    margin-bottom: 20px;
+
 }
 
 .scan-top h2 {
+
     margin: 0;
     color: #00ff9f;
-    font-size: 28px;
-    text-shadow: 0 0 14px rgba(0,255,159,0.35);
+
 }
 
 .scan-top p {
-    margin: 8px 0 0;
+
     color: #9de7cb;
+    margin-top: 5px;
+
 }
 
 .scan-status {
-    padding: 10px 14px;
-    border-radius: 999px;
+
     background: rgba(0,255,159,0.08);
+
     border: 1px solid rgba(0,255,159,0.25);
+
+    padding: 10px 16px;
+
+    border-radius: 999px;
+
     color: #00ff9f;
-    font-weight: 800;
+
+    font-weight: bold;
+
 }
 
 .pulse-dot {
+
     width: 10px;
     height: 10px;
-    background: #00ff9f;
+
     border-radius: 50%;
+
+    background: #00ff9f;
+
     display: inline-block;
+
     margin-right: 8px;
-    box-shadow: 0 0 14px #00ff9f;
+
     animation: pulse 1s infinite;
+
 }
 
 @keyframes pulse {
-    0% { transform: scale(0.8); opacity: 0.55; }
-    50% { transform: scale(1.35); opacity: 1; }
-    100% { transform: scale(0.8); opacity: 0.55; }
+
+    0% {
+        transform: scale(0.8);
+        opacity: 0.4;
+    }
+
+    50% {
+        transform: scale(1.4);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(0.8);
+        opacity: 0.4;
+    }
+
 }
 
 .target-box {
+
     display: grid;
+
     grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin-bottom: 18px;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+
 }
 
 .target-box div {
+
     background: rgba(0,0,0,0.55);
-    border: 1px solid rgba(0,255,159,0.16);
-    border-radius: 14px;
+
+    border-radius: 15px;
+
     padding: 15px;
+
+    border: 1px solid rgba(0,255,159,0.15);
+
 }
 
 .target-box span {
+
     display: block;
-    color: #8fe8c4;
+
+    color: #8de0be;
+
     font-size: 12px;
-    text-transform: uppercase;
+
     margin-bottom: 8px;
+
+    text-transform: uppercase;
+
 }
 
 .target-box strong {
+
     color: #00ff9f;
+
     font-size: 18px;
+
 }
 
 .progress-wrap {
-    margin-bottom: 18px;
+    margin-bottom: 20px;
 }
 
 .progress-label {
+
     display: flex;
     justify-content: space-between;
-    color: #b9ffe8;
-    font-weight: 700;
+
     margin-bottom: 8px;
+
+    color: #cffff0;
+
+    font-weight: bold;
+
 }
 
 .scan-bar {
+
     width: 100%;
     height: 12px;
+
     background: #00150e;
+
     border-radius: 999px;
+
     overflow: hidden;
-    border: 1px solid rgba(0,255,159,0.2);
+
 }
 
 #scanProgress {
+
     width: 0%;
     height: 100%;
-    background: linear-gradient(90deg, #00ff9f, #00d4ff, #00ff9f);
-    box-shadow: 0 0 18px rgba(0,255,159,0.55);
+
+    background:
+        linear-gradient(
+            90deg,
+            #00ff9f,
+            #00d4ff
+        );
+
     transition: width 0.2s ease;
+
 }
 
 .terminal-box {
+
     background: #020604;
-    border: 1px solid rgba(0,255,159,0.22);
-    border-radius: 16px;
+
+    border-radius: 15px;
+
     overflow: hidden;
+
+    border: 1px solid rgba(0,255,159,0.2);
+
 }
 
 .terminal-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+
     background: rgba(255,255,255,0.04);
+
     padding: 10px 14px;
-    border-bottom: 1px solid rgba(0,255,159,0.12);
+
+    border-bottom: 1px solid rgba(0,255,159,0.1);
+
 }
 
 .dot {
+
     width: 10px;
     height: 10px;
+
     border-radius: 50%;
+
+    display: inline-block;
+
+    margin-right: 5px;
+
 }
 
-.dot.red { background: #ff3b3b; }
-.dot.yellow { background: #ffcc00; }
-.dot.green { background: #00ff9f; }
+.red {
+    background: #ff4f4f;
+}
+
+.yellow {
+    background: #ffc857;
+}
+
+.green {
+    background: #00ff9f;
+}
 
 .terminal-title {
-    margin-left: 8px;
+
     color: #9de7cb;
-    font-size: 13px;
+    margin-left: 10px;
+
 }
 
 .scan-logs {
-    height: 240px;
-    overflow-y: auto;
-    padding: 14px;
-    font-family: Consolas, monospace;
-    color: #00ff9f;
-    font-size: 13px;
-    line-height: 1.6;
-}
 
-.log-line {
-    animation: fadeIn 0.15s ease;
+    height: 250px;
+
+    overflow-y: auto;
+
+    padding: 15px;
+
+    font-family: Consolas, monospace;
+
+    color: #00ff9f;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+
 }
 
 .log-success {
@@ -281,232 +507,472 @@
 }
 
 .log-error {
-    color: #ff6b6b;
+    color: #ff5f5f;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
+.result-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+
 }
 
-@media (max-width: 900px) {
-    .scan-top,
+.result-card {
+
+    background: rgba(0,0,0,0.55);
+
+    border: 1px solid rgba(0,255,159,0.15);
+
+    border-radius: 16px;
+
+    padding: 16px;
+
+}
+
+.result-card span {
+
+    display: block;
+
+    font-size: 12px;
+
+    color: #89d8b5;
+
+    margin-bottom: 8px;
+
+}
+
+.result-card strong {
+
+    color: #00ff9f;
+
+    font-size: 18px;
+
+}
+
+table {
+
+    width: 100%;
+    border-collapse: collapse;
+
+    margin-top: 20px;
+
+}
+
+table th {
+
+    background: rgba(0,255,159,0.08);
+
+    color: #00ff9f;
+
+    padding: 12px;
+
+}
+
+table td {
+
+    padding: 12px;
+
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+
+}
+
+@media(max-width:900px) {
+
     .target-box {
         grid-template-columns: 1fr;
+    }
+
+    .scan-top {
         flex-direction: column;
         align-items: flex-start;
     }
+
 }
+
 </style>
 
 <script>
+
 const presetSelect = document.getElementById("presetSelect");
+
 const startPort = document.getElementById("start_port");
 const endPort = document.getElementById("end_port");
+
 const scanForm = document.getElementById("scanForm");
+
 const scanBtn = document.getElementById("scanBtn");
+
 const statusBox = document.getElementById("statusBox");
+
 const resultsContainer = document.getElementById("resultsContainer");
 
 const scanAnimation = document.getElementById("scanAnimation");
+
 const scanLogs = document.getElementById("scanLogs");
+
 const scanProgress = document.getElementById("scanProgress");
+
 const progressText = document.getElementById("progressText");
+
 const engineStatus = document.getElementById("engineStatus");
+
 const liveTarget = document.getElementById("liveTarget");
+
 const liveRange = document.getElementById("liveRange");
+
+const liveThreads = document.getElementById("liveThreads");
 
 let fakeScanTimer = null;
 
 presetSelect.addEventListener("change", function () {
+
     if (!this.value) return;
+
     const parts = this.value.split("-");
+
     startPort.value = parts[0];
     endPort.value = parts[1];
+
 });
 
 function showStatus(message, ok=true) {
-    statusBox.innerHTML = `<div class="flash ${ok ? 'success' : 'error'}">${message}</div>`;
+
+    statusBox.innerHTML = `
+        <div class="flash ${ok ? 'success' : 'error'}">
+            ${message}
+        </div>
+    `;
+
 }
 
 function addLog(text, type="normal") {
-    const line = document.createElement("div");
-    line.className = "log-line";
 
-    if (type === "success") line.classList.add("log-success");
-    if (type === "warning") line.classList.add("log-warning");
-    if (type === "error") line.classList.add("log-error");
+    const line = document.createElement("div");
+
+    if (type === "success")
+        line.classList.add("log-success");
+
+    if (type === "warning")
+        line.classList.add("log-warning");
+
+    if (type === "error")
+        line.classList.add("log-error");
 
     const time = new Date().toLocaleTimeString();
-    line.textContent = `[${time}] ${text}`;
+
+    line.innerHTML = `[${time}] ${text}`;
 
     scanLogs.appendChild(line);
+
     scanLogs.scrollTop = scanLogs.scrollHeight;
+
 }
 
-function startScanAnimation(target, start, end) {
+function startScanAnimation(target, start, end, threads) {
+
     scanAnimation.classList.remove("hidden");
+
     scanLogs.innerHTML = "";
-    scanProgress.style.width = "0%";
-    progressText.textContent = "0%";
-    engineStatus.textContent = "Scanning";
+
     liveTarget.textContent = target;
-    liveRange.textContent = `${start} - ${end}`;
 
-    addLog("Initializing TCP scan engine...");
+    liveRange.textContent = `${start}-${end}`;
+
+    liveThreads.textContent = threads;
+
+    engineStatus.textContent = "Scanning";
+
+    addLog("Initializing scan engine...");
     addLog(`Resolving target: ${target}`);
-    addLog(`Preparing port range ${start}-${end}`);
-    addLog("Creating worker threads...");
-    addLog("Starting scan packets...");
+    addLog(`Starting threaded scan with ${threads} workers`);
+    addLog(`Preparing range ${start}-${end}`);
+    addLog("Creating sockets...");
+    addLog("Starting cyber scan packets...");
 
-    const totalPorts = Math.max(end - start + 1, 1);
-    let current = 0;
+    let progress = 0;
 
     fakeScanTimer = setInterval(() => {
-        if (current >= totalPorts) {
-            clearInterval(fakeScanTimer);
-            return;
-        }
 
-        const port = start + current;
-        const percent = Math.min(Math.round((current / totalPorts) * 96), 96);
+        progress += Math.random() * 5;
 
-        scanProgress.style.width = percent + "%";
-        progressText.textContent = percent + "%";
+        if (progress > 96)
+            progress = 96;
 
-        if (current % Math.ceil(totalPorts / 35) === 0 || totalPorts <= 50) {
-            addLog(`Scanning port ${port}/TCP...`);
-        }
+        scanProgress.style.width = progress + "%";
 
-        current += Math.max(1, Math.ceil(totalPorts / 120));
-    }, 80);
+        progressText.textContent = Math.floor(progress) + "%";
+
+    }, 120);
+
 }
 
 function stopScanAnimationSuccess(data) {
-    if (fakeScanTimer) clearInterval(fakeScanTimer);
+
+    clearInterval(fakeScanTimer);
 
     scanProgress.style.width = "100%";
+
     progressText.textContent = "100%";
+
     engineStatus.textContent = "Completed";
 
-    addLog("Backend scan completed.", "success");
-    addLog(`Open ports found: ${data.total_open_ports}`, "success");
+    addLog("Backend scan completed", "success");
 
-    if (data.results && data.results.length > 0) {
-        data.results.forEach(row => {
-            addLog(`OPEN ${row.port}/TCP - ${row.service} - Risk: ${row.risk}`, "success");
+    addLog(`Open ports detected: ${data.total_open_ports}`, "success");
+
+    if (data.results.length > 0) {
+
+        data.results.forEach(port => {
+
+            addLog(
+                `OPEN ${port.port}/TCP - ${port.service} - ${port.risk}`,
+                "success"
+            );
+
         });
+
     } else {
-        addLog("No open ports found in selected range.", "warning");
+
+        addLog(
+            "No open ports detected",
+            "warning"
+        );
+
     }
 
-    addLog("Scan report saved to database.", "success");
+    addLog("Scan report saved to database", "success");
+
 }
 
 function stopScanAnimationError(message) {
-    if (fakeScanTimer) clearInterval(fakeScanTimer);
+
+    clearInterval(fakeScanTimer);
+
+    engineStatus.textContent = "Failed";
+
+    progressText.textContent = "Failed";
 
     scanProgress.style.width = "100%";
-    progressText.textContent = "Failed";
-    engineStatus.textContent = "Error";
 
-    addLog(message || "Scan failed.", "error");
+    addLog(message, "error");
+
 }
 
 function renderResults(data) {
-    if (!data.results || data.results.length === 0) {
-        resultsContainer.innerHTML = `
-            <p><strong>Scan Name:</strong> ${data.scan_name}</p>
-            <p><strong>Target:</strong> ${data.target}</p>
-            <p><strong>Resolved IP:</strong> ${data.resolved_ip}</p>
-            <p>No open ports found.</p>
-        `;
-        return;
-    }
 
-    let rows = data.results.map(row => `
-        <tr>
-            <td>${row.port}</td>
-            <td>${row.status}</td>
-            <td>${row.service}</td>
-            <td>${row.protocol}</td>
-            <td>${row.risk}</td>
-        </tr>
-    `).join("");
+    let geo = data.geo || {};
+
+    let geoHTML = `
+        <div class="result-grid">
+
+            <div class="result-card">
+                <span>Resolved IP</span>
+                <strong>${data.resolved_ip}</strong>
+            </div>
+
+            <div class="result-card">
+                <span>Hostname</span>
+                <strong>${data.hostname || "Unknown"}</strong>
+            </div>
+
+            <div class="result-card">
+                <span>Country</span>
+                <strong>${geo.country || "Unknown"}</strong>
+            </div>
+
+            <div class="result-card">
+                <span>City</span>
+                <strong>${geo.city || "Unknown"}</strong>
+            </div>
+
+            <div class="result-card">
+                <span>ISP</span>
+                <strong>${geo.org || "Unknown"}</strong>
+            </div>
+
+            <div class="result-card">
+                <span>OS Detection</span>
+                <strong>${data.os || "Unknown"}</strong>
+            </div>
+
+            <div class="result-card">
+                <span>Open Ports</span>
+                <strong>${data.total_open_ports}</strong>
+            </div>
+
+            <div class="result-card">
+                <span>Threads Used</span>
+                <strong>${data.threads}</strong>
+            </div>
+
+        </div>
+    `;
+
+    let rows = "";
+
+    data.results.forEach(row => {
+
+        rows += `
+            <tr>
+
+                <td>${row.port}</td>
+
+                <td>${row.status}</td>
+
+                <td>${row.service}</td>
+
+                <td>${row.protocol}</td>
+
+                <td>${row.risk}</td>
+
+                <td>${row.vulnerability}</td>
+
+            </tr>
+        `;
+
+    });
 
     resultsContainer.innerHTML = `
-        <p><strong>Scan Name:</strong> ${data.scan_name}</p>
-        <p><strong>Target:</strong> ${data.target}</p>
-        <p><strong>Resolved IP:</strong> ${data.resolved_ip}</p>
-        <p><strong>Total Open Ports:</strong> ${data.total_open_ports}</p>
+
+        <h3>${data.scan_name}</h3>
+
+        ${geoHTML}
 
         <table>
+
             <thead>
+
                 <tr>
+
                     <th>Port</th>
                     <th>Status</th>
                     <th>Service</th>
                     <th>Protocol</th>
                     <th>Risk</th>
+                    <th>Vulnerability</th>
+
                 </tr>
+
             </thead>
-            <tbody>${rows}</tbody>
+
+            <tbody>
+
+                ${rows}
+
+            </tbody>
+
         </table>
 
-        <div style="margin-top:16px;">
-            <a href="/scan/${data.scan_id}" class="btn-primary">Open Scan Detail</a>
+        <div style="margin-top:20px;">
+
+            <a
+                href="/scan/${data.scan_id}"
+                class="btn-primary"
+            >
+                Open Detailed Report
+            </a>
+
         </div>
+
     `;
+
 }
 
 scanForm.addEventListener("submit", async function(e) {
+
     e.preventDefault();
 
     const target = document.getElementById("target").value.trim();
+
     const start = parseInt(startPort.value);
+
     const end = parseInt(endPort.value);
 
-    if (!target) {
-        showStatus("Please enter target IP or hostname.", false);
-        return;
-    }
+    const threads = document.getElementById("threads").value;
 
-    if (start < 1 || end > 65535 || start > end) {
-        showStatus("Invalid port range.", false);
+    if (!target) {
+
+        showStatus(
+            "Please enter target hostname or IP",
+            false
+        );
+
         return;
+
     }
 
     scanBtn.disabled = true;
-    scanBtn.textContent = "Scanning...";
-    showStatus("Scan started. Please wait...", true);
 
-    startScanAnimation(target, start, end);
+    scanBtn.textContent = "Scanning...";
+
+    showStatus(
+        "Scan started successfully",
+        true
+    );
+
+    startScanAnimation(
+        target,
+        start,
+        end,
+        threads
+    );
 
     const formData = new FormData(scanForm);
 
     try {
-        const response = await fetch("{{ url_for('scanner.start_scan') }}", {
-            method: "POST",
-            body: formData
-        });
+
+        const response = await fetch(
+            "{{ url_for('scanner.start_scan') }}",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
 
         const data = await response.json();
 
         if (data.success) {
+
             stopScanAnimationSuccess(data);
-            showStatus(data.message, true);
+
             renderResults(data);
+
+            showStatus(data.message, true);
+
         } else {
+
             stopScanAnimationError(data.message);
-            showStatus(data.message || "Scan failed.", false);
+
+            showStatus(data.message, false);
+
         }
+
     } catch (error) {
-        stopScanAnimationError("Error connecting to scanner backend.");
-        showStatus("Something went wrong while starting the scan.", false);
+
+        stopScanAnimationError(
+            "Error connecting to backend"
+        );
+
+        showStatus(
+            "Backend connection failed",
+            false
+        );
+
     } finally {
+
         scanBtn.disabled = false;
+
         scanBtn.textContent = "Start Scan";
+
     }
+
 });
+
 </script>
+
 {% endblock %}
