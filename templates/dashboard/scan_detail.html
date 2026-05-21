@@ -1,72 +1,196 @@
 {% extends "base.html" %}
 
-{% block title %}Scan Detail{% endblock %}
+{% block title %}
+Scan Detail
+{% endblock %}
 
 {% block content %}
-<h1 class="page-title">Scan Detail</h1>
-<p class="page-subtitle">Detailed stored result view for one scan session.</p>
+
+<h1>Scan Detail</h1>
 
 <div class="panel">
-    <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:16px;">
-        <div><strong style="color:#00ff9f;">Scan Name:</strong> {{ scan['scan_name'] or 'Untitled Scan' }}</div>
-        <div><strong style="color:#00ff9f;">Target:</strong> {{ scan['target'] }}</div>
-        <div><strong style="color:#00ff9f;">Resolved IP:</strong> {{ scan['resolved_ip'] }}</div>
-        <div><strong style="color:#00ff9f;">Port Range:</strong> {{ scan['port_range'] }}</div>
-        <div><strong style="color:#00ff9f;">Open Ports:</strong> {{ scan['total_open_ports'] }}</div>
-        <div><strong style="color:#00ff9f;">Created:</strong> {{ scan['created_at'] }}</div>
+
+<div>
+<b>Name:</b>
+{{ scan['scan_name'] }}
+</div>
+
+<div>
+<b>Target:</b>
+{{ scan['target'] }}
+</div>
+
+<div>
+<b>IP:</b>
+{{ scan['resolved_ip'] }}
+</div>
+
+<div>
+<b>Ports:</b>
+{{ scan['port_range'] }}
+</div>
+
+<div>
+<b>Open:</b>
+{{ scan['total_open_ports'] }}
+</div>
+
+<form
+method="POST"
+action="{{ url_for('scanner.toggle_favorite',scan_id=scan['id']) }}"
+>
+<div class="button box">
+<button type="submit">
+
+{% if scan['is_favorite']==1 %}
+ Remove Saved
+{% else %}
+Save Scan
+{% endif %}
+
+</button>
+</div>
+</form>
+
+</div>
+
+<div class="panel">
+
+<form
+method="POST"
+action="{{ url_for('scanner.update_notes',scan_id=scan['id']) }}"
+>
+
+<textarea
+name="notes"
+>
+
+{{ scan['notes'] or '' }}
+
+</textarea>
+
+<button type="submit">
+Save Notes
+</button>
+
+</form>
+
+</div>
+
+<div class="panel">
+
+{% if results %}
+
+<table>
+
+<tr>
+
+<th>Port</th>
+<th>Status</th>
+<th>Service</th>
+<th>Risk</th>
+
+</tr>
+
+{% for row in results %}
+
+<tr>
+
+<td>{{ row['port'] }}</td>
+<td>{{ row['status'] }}</td>
+<td>{{ row['service'] }}</td>
+<td>{{ row['risk'] }}</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+{% endif %}
+
+</div>
+<div>
+<b>Open:</b>
+{{ scan['total_open_ports'] }}
+</div>
+<hr style="margin:20px 0; border-color:rgba(0,255,159,0.1);">
+
+<div class="result-grid">
+
+    <div class="result-card">
+        <span>Country</span>
+        <strong>{{ scan['country'] or 'Unknown' }}</strong>
     </div>
 
-    <div style="margin-top:18px;">
-        {% if scan['is_favorite'] == 1 %}
-            <span class="badge favorite">Saved Scan</span>
-        {% else %}
-            <span class="badge normal">Normal Scan</span>
-        {% endif %}
+    <div class="result-card">
+        <span>City</span>
+        <strong>{{ scan['city'] or 'Unknown' }}</strong>
     </div>
-</div>
 
-<div class="panel">
-    <h2 style="margin-top:0; color:#00ff9f;">Scan Notes</h2>
-    <form method="POST" action="{{ url_for('scanner.update_notes', scan_id=scan['id']) }}">
-        <textarea name="notes" placeholder="Add notes...">{{ scan['notes'] or '' }}</textarea>
-        <div style="margin-top:14px;">
-            <button type="submit" class="btn-primary">Save Notes</button>
-        </div>
-    </form>
-</div>
+    <div class="result-card">
+        <span>ISP</span>
+        <strong>{{ scan['isp'] or 'Unknown' }}</strong>
+    </div>
 
-<div class="panel">
-    <h2 style="margin-top:0; color:#00ff9f;">Open Port Results</h2>
-    {% if results %}
-    <table>
-        <thead>
-            <tr>
-                <th>Port</th>
-                <th>Status</th>
-                <th>Service</th>
-                <th>Version</th>
-                <th>Protocol</th>
-                <th>Response Time</th>
-                <th>Risk</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in results %}
-            <tr>
-                <td>{{ row['port'] }}</td>
-                <td>{{ row['status'] }}</td>
-                <td>{{ row['service'] }}</td>
-                <td>{{ row['version'] }}</td>
-                <td>{{ row['protocol'] }}</td>
-                <td>{{ row['response_time'] }}</td>
-                <td>{{ row['risk'] }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p>No results stored for this scan.</p>
-    {% endif %}
+    <div class="result-card">
+        <span>Latitude</span>
+        <strong>{{ scan['latitude'] or 'Unknown' }}</strong>
+    </div>
+
+    <div class="result-card">
+        <span>Longitude</span>
+        <strong>{{ scan['longitude'] or 'Unknown' }}</strong>
+    </div>
+
 </div>
+<style>
+
+.result-grid {
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(220px,1fr));
+
+    gap:15px;
+
+    margin-top:20px;
+
+}
+
+.result-card {
+
+    background:rgba(0,0,0,0.45);
+
+    border:1px solid rgba(0,255,159,0.15);
+
+    border-radius:16px;
+
+    padding:16px;
+
+}
+
+.result-card span {
+
+    display:block;
+
+    color:#8fe5c2;
+
+    font-size:12px;
+
+    margin-bottom:8px;
+
+}
+
+.result-card strong {
+
+    color:#00ff9f;
+
+    font-size:18px;
+
+}
+
+</style>
+
 {% endblock %}
-<button onclick="toggleFavorite({{ scan.id }})">⭐ Favorite</button>

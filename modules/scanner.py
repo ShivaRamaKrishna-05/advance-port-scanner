@@ -50,27 +50,14 @@ def login_required():
 def resolve_target(target):
     try:
         return socket.gethostbyname(target)
-
     except socket.gaierror:
         return None
 
 
 def get_risk(port):
 
-    high = [
-        21,
-        22,
-        23,
-        135,
-        139,
-        445,
-        3306,
-        3389,
-        6379,
-        27017,
-    ]
-
-    low = [53, 80, 110, 143, 443]
+    high = [21,22,23,135,139,445,3306,3389,6379,27017]
+    low = [53,80,110,143,443]
 
     if port in high:
         return "High"
@@ -145,7 +132,10 @@ def perform_scan(target, start_port, end_port, max_workers=200):
                 port
             ): port
 
-            for port in range(start_port, end_port + 1)
+            for port in range(
+                start_port,
+                end_port + 1
+            )
         }
 
         for future in as_completed(futures):
@@ -155,7 +145,9 @@ def perform_scan(target, start_port, end_port, max_workers=200):
             if result:
                 open_ports.append(result)
 
-    open_ports.sort(key=lambda x: x["port"])
+    open_ports.sort(
+        key=lambda x: x["port"]
+    )
 
     return open_ports
 
@@ -164,7 +156,9 @@ def perform_scan(target, start_port, end_port, max_workers=200):
 def dashboard():
 
     if not login_required():
-        return redirect(url_for("auth.login"))
+        return redirect(
+            url_for("auth.login")
+        )
 
     db = get_db()
 
@@ -172,7 +166,7 @@ def dashboard():
         """
         SELECT *
         FROM scans
-        WHERE user_id = ?
+        WHERE user_id=?
         ORDER BY id DESC
         LIMIT 5
         """,
@@ -181,9 +175,9 @@ def dashboard():
 
     total_scans = db.execute(
         """
-        SELECT COUNT(*) AS count
+        SELECT COUNT(*) count
         FROM scans
-        WHERE user_id = ?
+        WHERE user_id=?
         """,
         (session["user_id"],)
     ).fetchone()["count"]
@@ -191,7 +185,7 @@ def dashboard():
     return render_template(
         "dashboard/home.html",
         recent_scans=recent_scans,
-        total_scans=total_scans,
+        total_scans=total_scans
     )
 
 
@@ -201,7 +195,9 @@ def newscan():
     if not login_required():
         return redirect(url_for("auth.login"))
 
-    return render_template("dashboard/newscan.html")
+    return render_template(
+        "dashboard/newscan.html"
+    )
 
 
 @scanner_bp.route("/history")
@@ -216,7 +212,7 @@ def history():
         """
         SELECT *
         FROM scans
-        WHERE user_id = ?
+        WHERE user_id=?
         ORDER BY id DESC
         """,
         (session["user_id"],)
@@ -224,6 +220,31 @@ def history():
 
     return render_template(
         "dashboard/history.html",
+        scans=scans
+    )
+
+
+@scanner_bp.route("/saved_scans")
+def saved_scans():
+
+    if not login_required():
+        return redirect(url_for("auth.login"))
+
+    db = get_db()
+
+    scans = db.execute(
+        """
+        SELECT *
+        FROM scans
+        WHERE user_id=?
+        AND is_favorite=1
+        ORDER BY id DESC
+        """,
+        (session["user_id"],)
+    ).fetchall()
+
+    return render_template(
+        "dashboard/saved_scans.html",
         scans=scans
     )
 
@@ -240,8 +261,8 @@ def scan_detail(scan_id):
         """
         SELECT *
         FROM scans
-        WHERE id = ?
-        AND user_id = ?
+        WHERE id=?
+        AND user_id=?
         """,
         (scan_id, session["user_id"])
     ).fetchone()
@@ -250,7 +271,7 @@ def scan_detail(scan_id):
         """
         SELECT *
         FROM scan_results
-        WHERE scan_id = ?
+        WHERE scan_id=?
         ORDER BY port ASC
         """,
         (scan_id,)
@@ -267,96 +288,94 @@ def scan_detail(scan_id):
 def start_scan():
 
     if not login_required():
-        return jsonify({
-            "success": False,
-            "message": "Unauthorized"
-        }), 401
 
-    target = request.form.get("target", "").strip()
-    start_port = request.form.get("start_port", "").strip()
-    end_port = request.form.get("end_port", "").strip()
+        return jsonify(
+            success=False
+        ), 401
 
-    scan_name = request.form.get("scan_name", "").strip()
-    notes = request.form.get("notes", "").strip()
+    target = request.form.get(
+        "target"
+    ).strip()
 
-    if not target or not start_port or not end_port:
+    start_port = int(
+        request.form.get("start_port")
+    )
 
-        return jsonify({
-            "success": False,
-            "message": "All fields required"
-        }), 400
+    end_port = int(
+        request.form.get("end_port")
+    )
 
-    try:
+    scan_name = request.form.get(
+        "scan_name"
+    ).strip()
 
-        start_port = int(start_port)
-        end_port = int(end_port)
-
-    except ValueError:
-
-        return jsonify({
-            "success": False,
-            "message": "Ports must be numeric"
-        }), 400
-
-    if start_port < 1 or end_port > 65535:
-
-        return jsonify({
-            "success": False,
-            "message": "Invalid port range"
-        }), 400
+    notes = request.form.get(
+        "notes"
+    ).strip()
 
     resolved_ip = resolve_target(target)
 
     if not resolved_ip:
 
-        return jsonify({
-            "success": False,
-            "message": "Could not resolve target"
-        }), 400
+        return jsonify(
+            success=False,
+            message="Invalid target"
+        )
 
     geo = get_ip_info(resolved_ip)
-
+    if geo is None:
+        geo = {}
+    country = geo.get("country", "Unknown")
+    city = geo.get("city", "Unknown")
+    isp = geo.get("org", "Unknown")
+    latitude = geo.get("lat", "Unknown")
+    longitude = geo.get("lon", "Unknown")
+    
     results = perform_scan(
         resolved_ip,
         start_port,
         end_port
     )
 
-    total_open_ports = len(results)
-
-    if not scan_name:
-        scan_name = f"{target} Scan"
-
     db = get_db()
 
     cursor = db.execute(
         """
-        INSERT INTO scans (
-            user_id,
-            scan_name,
-            target,
-            resolved_ip,
-            port_range,
-            total_open_ports,
-            is_favorite,
-            notes,
-            created_at
-        )
-
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            session["user_id"],
-            scan_name,
-            target,
-            resolved_ip,
-            f"{start_port}-{end_port}",
-            total_open_ports,
-            0,
-            notes,
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        )
-    )
+         INSERT INTO scans(
+             user_id,
+             scan_name,
+             target,
+             resolved_ip,
+             port_range,
+             total_open_ports,
+             is_favorite,
+             notes,
+             country,
+             city,
+             isp,
+             latitude,
+             longitude,
+             created_at
+         )
+         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                """,
+                (
+                session["user_id"],
+                scan_name or target,
+                target,
+                resolved_ip,
+                f"{start_port}-{end_port}",
+                len(results),
+                0,
+                notes,
+                country,
+                city,
+                isp,
+                latitude,
+                longitude,
+                datetime.now()
+                )
+                )
 
     scan_id = cursor.lastrowid
 
@@ -364,20 +383,19 @@ def start_scan():
 
         db.execute(
             """
-            INSERT INTO scan_results (
-                scan_id,
-                port,
-                status,
-                service,
-                version,
-                protocol,
-                response_time,
-                risk,
-                os,
-                vulnerability
+            INSERT INTO scan_results(
+            scan_id,
+            port,
+            status,
+            service,
+            version,
+            protocol,
+            response_time,
+            risk,
+            os,
+            vulnerability
             )
-
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES(?,?,?,?,?,?,?,?,?,?)
             """,
             (
                 scan_id,
@@ -395,31 +413,36 @@ def start_scan():
 
     db.commit()
 
-    return jsonify({
-        "success": True,
-        "message": "Scan completed successfully",
+    return jsonify(
+    success=True,
 
-        "scan_id": scan_id,
+    message="Scan completed successfully",
 
-        "scan_name": scan_name,
+    scan_id=scan_id,
 
-        "target": target,
+    scan_name=scan_name or target,
 
-        "resolved_ip": resolved_ip,
+    resolved_ip=resolved_ip,
 
-        "geo": geo,
+    hostname=target,
 
-        "total_open_ports": total_open_ports,
+    total_open_ports=len(results),
 
-        "results": results,
-    })
+    threads=request.form.get("threads"),
+
+    os=detect_os(64),
+
+    geo=geo,
+
+    results=results
+)
 
 
-@scanner_bp.route("/scan/<int:scan_id>/favorite", methods=["POST"])
+@scanner_bp.route(
+"/scan/<int:scan_id>/favorite",
+methods=["POST"]
+)
 def toggle_favorite(scan_id):
-
-    if not login_required():
-        return redirect(url_for("auth.login"))
 
     db = get_db()
 
@@ -427,88 +450,96 @@ def toggle_favorite(scan_id):
         """
         SELECT is_favorite
         FROM scans
-        WHERE id = ?
-        AND user_id = ?
+        WHERE id=?
+        AND user_id=?
         """,
-        (scan_id, session["user_id"])
+        (
+            scan_id,
+            session["user_id"]
+        )
     ).fetchone()
 
     if not scan:
 
-        flash("Scan not found", "error")
+        flash("Not found")
+        return redirect(
+            url_for("scanner.history")
+        )
 
-        return redirect(url_for("scanner.history"))
-
-    new_value = 0 if scan["is_favorite"] else 1
+    value = 0 if scan["is_favorite"] else 1
 
     db.execute(
         """
         UPDATE scans
-        SET is_favorite = ?
-        WHERE id = ?
-        AND user_id = ?
+        SET is_favorite=?
+        WHERE id=?
         """,
-        (
-            new_value,
-            scan_id,
-            session["user_id"]
-        )
+        (value, scan_id)
     )
 
     db.commit()
 
-    flash("Updated successfully", "success")
+    return redirect(
+        url_for("scanner.saved_scans")
+    )
 
-    return redirect(request.referrer)
 
-
-@scanner_bp.route("/scan/<int:scan_id>/delete", methods=["POST"])
+@scanner_bp.route(
+"/scan/<int:scan_id>/delete",
+methods=["POST"]
+)
 def delete_scan(scan_id):
-
-    if not login_required():
-        return redirect(url_for("auth.login"))
 
     db = get_db()
 
     db.execute(
-        """
-        DELETE FROM scan_results
-        WHERE scan_id = ?
-        """,
+        "DELETE FROM scan_results WHERE scan_id=?",
         (scan_id,)
     )
 
     db.execute(
-        """
-        DELETE FROM scans
-        WHERE id = ?
-        AND user_id = ?
-        """,
-        (
-            scan_id,
-            session["user_id"]
-        )
+        "DELETE FROM scans WHERE id=?",
+        (scan_id,)
     )
 
     db.commit()
 
-    flash("Scan deleted", "success")
+    flash(
+        "Deleted",
+        "success"
+    )
 
-    return redirect(request.referrer)
+    return redirect(
+        request.referrer
+    )
 
-@scanner_bp.route("/saved_scans")
-def saved_scans():
-    return render_template("dashboard/saved_scans.html")
 
-@scanner_bp.route("/scan/<int:scan_id>/update-notes", methods=["POST"])
+@scanner_bp.route(
+"/scan/<int:scan_id>/update-notes",
+methods=["POST"]
+)
 def update_notes(scan_id):
-    notes = request.form.get("notes")
+
+    notes = request.form.get(
+        "notes"
+    )
 
     db = get_db()
+
     db.execute(
-        "UPDATE scans SET notes = ? WHERE id = ?",
+        """
+        UPDATE scans
+        SET notes=?
+        WHERE id=?
+        """,
         (notes, scan_id)
     )
+
     db.commit()
 
-    return redirect(url_for("scanner.scan_detail", scan_id=scan_id))
+    return redirect(
+        url_for(
+            "scanner.scan_detail",
+            scan_id=scan_id
+        )
+    )

@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS scans;
 DROP TABLE IF EXISTS scan_results;
 
+-- USERS TABLE
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL,
@@ -9,6 +10,7 @@ CREATE TABLE users (
     password_hash TEXT NOT NULL
 );
 
+-- SCANS TABLE
 CREATE TABLE scans (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -23,6 +25,7 @@ CREATE TABLE scans (
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
+-- SCAN RESULTS TABLE (FIXED)
 CREATE TABLE scan_results (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     scan_id INTEGER NOT NULL,
@@ -33,5 +36,7 @@ CREATE TABLE scan_results (
     protocol TEXT,
     response_time TEXT,
     risk TEXT,
+    os TEXT,
+    vulnerability TEXT,
     FOREIGN KEY (scan_id) REFERENCES scans (id)
 );

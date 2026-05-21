@@ -1,6 +1,53 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Saved Scans</h1>
-<p>No scans saved yet.</p>
+
+<div class="panel">
+
+<h1 class="page-title">Saved Scans</h1>
+
+<div class="saved-grid">
+
+{% for scan in scans %}
+
+<div class="scan-card">
+
+    <h3>{{ scan["scan_name"] }}</h3>
+
+    <p><strong>Target:</strong> {{ scan["target"] }}</p>
+
+    <p><strong>IP:</strong> {{ scan["resolved_ip"] }}</p>
+
+    <p><strong>Open Ports:</strong> {{ scan["total_open_ports"] }}</p>
+
+    <p><strong>Range:</strong> {{ scan["port_range"] }}</p>
+
+    <p><strong>Date:</strong> {{ scan["created_at"] }}</p>
+
+    <div class="scan-actions">
+
+        <a href="{{ url_for('scanner.scan_detail', scan_id=scan['id']) }}"
+           class="btn-primary">
+            View Scan
+        </a>
+
+        <form method="POST"
+              action="{{ url_for('scanner.toggle_favorite', scan_id=scan['id']) }}">
+
+            <button type="submit" class="remove-btn">
+                Remove
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
 {% endblock %}

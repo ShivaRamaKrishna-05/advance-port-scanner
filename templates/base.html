@@ -399,6 +399,32 @@
             font-weight: 700;
             font-size: 14px;
         }
+        .intel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    margin-top: 24px;
+}
+
+.intel-card {
+    background: rgba(0,255,159,0.04);
+    border: 1px solid rgba(0,255,159,0.14);
+    border-radius: 18px;
+    padding: 18px;
+}
+
+.intel-card span {
+    display: block;
+    color: #8cebc7;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.intel-card strong {
+    color: #ffffff;
+    font-size: 18px;
+}
 
         @media (max-width: 900px) {
             .app-shell { flex-direction: column; }
@@ -409,6 +435,63 @@
             }
             .grid-3, .form-grid { grid-template-columns: 1fr; }
         }
+     .saved-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 24px;
+    margin-top: 30px;
+}
+
+.scan-card {
+    background: rgba(0,255,159,0.05);
+    border: 1px solid rgba(0,255,159,0.15);
+    border-radius: 22px;
+    padding: 22px;
+    transition: 0.3s ease;
+}
+
+.scan-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(0,255,159,0.12);
+}
+
+.scan-card h3 {
+    color: #00ff9f;
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 24px;
+}
+
+.scan-card p {
+    margin: 10px 0;
+    color: #dffff4;
+}
+
+.scan-card strong {
+    color: #8cebc7;
+}
+
+.scan-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+}
+
+.scan-actions a,
+.scan-actions button {
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.remove-btn {
+    background: rgba(255,59,59,0.12);
+    border: 1px solid rgba(255,59,59,0.25);
+    color: #ff7a7a;
+}   
     </style>
 </head>
 
@@ -431,7 +514,7 @@
                 <a href="{{ url_for('scanner.dashboard') }}">Dashboard</a>
                 <a href="{{ url_for('scanner.newscan') }}">New Scan</a>
                 <a href="{{ url_for('scanner.history') }}">Scan History</a>
-<a href="#">Saved Scans</a>                <a href="{{ url_for('tools.tools_home') }}">Tools</a>
+                <a href="{{ url_for('scanner.saved_scans') }}">Saved Scans</a>             <a href="{{ url_for('tools.tools_home') }}">Tools</a>
                 <a href="{{ url_for('auth.logout') }}">Logout</a>
             </div>
 

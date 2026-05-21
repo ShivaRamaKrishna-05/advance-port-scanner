@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, session, url_for
+from flask import Flask, redirect, session, url_for
 from modules.auth import auth_bp
 from modules.scanner import scanner_bp
 from modules.tools import tools_bp
@@ -26,7 +26,9 @@ def create_app():
     return app
 
 
+# ✅ IMPORTANT: expose app for gunicorn (Render)
 app = create_app()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    print("Starting Flask server...")  # debug line
+    app.run(host="0.0.0.0", port=10000, debug=True)
